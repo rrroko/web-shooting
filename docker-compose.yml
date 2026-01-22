@@ -1,0 +1,73 @@
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: shooting-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-password}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-shooting_db}
+      MYSQL_USER: ${MYSQL_USER:-admin}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-password}
+      TZ: Asia/Tokyo
+    volumes:
+      - db_data:/var/lib/mysql
+
+  php-apache:
+    build: ./php
+    container_name: shooting-php
+    environment:
+      TZ: Asia/Tokyo
+      MYSQL_HOST: mysql
+      MYSQL_DB: ${MYSQL_DATABASE:-shooting_db}
+      MYSQL_USER: ${MYSQL_USER:-admin}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-password}
+    volumes:
+      - ./htdocs:/var/www/html
+    depends_on:
+      - mysql
+
+  cert-init:
+    image: alpine:3.20
+    container_name: shooting-cert-init
+    volumes:
+      - ./nginx/certs:/certs
+      - ./nginx/scripts/gen-cert.sh:/gen-cert.sh:ro
+    entrypoint: ["/bin/sh","/gen-cert.sh"]
+
+
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: shooting-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./nginx/certs:/etc/nginx/certs:ro
+    entrypoint: ["/bin/sh","-c"]
+    command: >
+      "while [ ! -f /etc/nginx/certs/server.crt ] || [ ! -f /etc/nginx/certs/server.key ]; do
+         echo '[nginx] waiting cert...';
+         sleep 1;
+       done;
+       nginx -g 'daemon off;'"
+    depends_on:
+      - cert-init
+      - php-apache
+
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: shooting-pma
+    environment:
+      PMA_HOST: mysql
+      PMA_USER: ${MYSQL_USER:-admin}
+      PMA_PASSWORD: ${MYSQL_PASSWORD:-password}
+      TZ: Asia/Tokyo
+    ports:
+      - "8081:80"
+    depends_on:
+      - mysql
+
+volumes:
+  db_data:

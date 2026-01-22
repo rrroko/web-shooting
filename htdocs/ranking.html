@@ -1,0 +1,104 @@
+<!doctype html><meta charset="utf-8">
+<title>Web Shooting - Ranking</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+:root{color-scheme:dark}
+body{margin:20px;background:#0b0b0f;color:#e8efff;font:14px/1.5 system-ui}
+a.btn,button.btn{background:#1e3a8a;color:#fff;border-radius:10px;padding:6px 10px;text-decoration:none;border:0;cursor:pointer}
+table{border-collapse:collapse;width:min(900px,100%);margin-top:12px}
+th,td{border:1px solid #334155;padding:6px 8px}
+small{color:#94a3b8}
+</style>
+
+<script>
+(async ()=>{
+  try{
+    const r = await fetch('/api/me.php', {credentials:'include'});
+    if(!r.ok){ location.href='/login.html'; return; }
+    const js = await r.json().catch(()=>null);
+    document.addEventListener('DOMContentLoaded', ()=>{
+      document.getElementById('who').textContent = js?.player?.player_name ?? '';
+    });
+  }catch(e){ location.href='/login.html'; }
+})();
+</script>
+
+<p style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+  <a class="btn" href="/menu.html">← メニュー</a>
+  <span>👤 <b id="who"></b></span>
+  <button class="btn" id="logout">ログアウト</button>
+</p>
+
+<h1>Ranking</h1>
+<p>
+  <label>モード:
+    <select id="mode">
+      <option value="survival">survival</option>
+      <option value="story">story</option>
+    </select>
+  </label>
+  <label style="margin-left:10px">ステージ:
+    <select id="stage">
+      <option value="">(全て)</option>
+      <option value="1">1</option>
+      <option value="2">2</option>
+      <option value="3">3</option>
+    </select>
+  </label>
+  <button id="reload" class="btn">Reload</button>
+  <small id="hint" style="margin-left:10px"></small>
+</p>
+
+<table>
+  <thead><tr><th>#</th><th>Player</th><th>Mode</th><th>Stage</th><th>Score</th><th>Time</th><th>Date</th></tr></thead>
+  <tbody id="tbody"></tbody>
+</table>
+
+<script type="module">
+const $=s=>document.querySelector(s);
+function fmtMs(ms){
+  const s = Math.floor((ms||0)/1000);
+  const m = Math.floor(s/60);
+  const r = s%60;
+  return m+":"+String(r).padStart(2,'0');
+}
+
+function updateStageSelect(){
+  const mode = $('#mode').value;
+  $('#stage').disabled = (mode !== 'story');
+  $('#hint').textContent = (mode==='survival') ? 'survival はステージ無し（死ぬまで）' : '';
+}
+updateStageSelect();
+$('#mode').onchange = ()=>{ updateStageSelect(); load(); };
+$('#stage').onchange = ()=>load();
+$('#reload').onclick = ()=>load();
+$('#logout').onclick = async ()=>{
+  await fetch('/api/logout.php', {credentials:'include'});
+  location.href='/login.html';
+};
+
+async function load(){
+  const mode = $('#mode').value;
+  const stage = $('#stage').value;
+  const qs = new URLSearchParams({mode, limit:'20'});
+  if(mode==='story' && stage) qs.set('stage', stage);
+  const r = await fetch('/api/ranking.php?'+qs.toString(), {credentials:'include'});
+  const js = await r.json().catch(()=>null);
+  const rows = js?.rows ?? [];
+  const tb = $('#tbody'); tb.innerHTML='';
+  rows.forEach((row,i)=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML = `
+      <td>${i+1}</td>
+      <td>${row.player_name ?? ''}</td>
+      <td>${row.mode ?? ''}</td>
+      <td>${row.stage ?? ''}</td>
+      <td>${row.score ?? 0}</td>
+      <td>${fmtMs(row.duration_ms)}</td>
+      <td>${(row.created_at ?? '').replace('T',' ')}</td>
+    `;
+    tb.appendChild(tr);
+  });
+}
+load();
+</script>

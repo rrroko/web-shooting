@@ -1,0 +1,52 @@
+<!doctype html><meta charset="utf-8">
+<title>Web Shooting - Login</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+:root{color-scheme:dark}
+body{margin:0;background:#0b0b0f;color:#e8efff;font:16px/1.6 system-ui}
+.card{max-width:520px;margin:10vh auto;padding:22px;border:1px solid #334155;border-radius:16px;background:#0f172a}
+h1{margin:0 0 10px;font-size:24px}
+label{display:block;margin:12px 0 6px;color:#cbd5e1}
+input{width:100%;padding:10px 12px;border-radius:12px;border:1px solid #334155;background:#0b1220;color:#e8efff;font-size:16px}
+.row{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
+button{cursor:pointer;border:0;border-radius:12px;padding:10px 14px;background:#1e3a8a;color:#fff;font-weight:700}
+small{color:#94a3b8}
+.err{margin-top:10px;color:#fca5a5;white-space:pre-wrap}
+</style>
+<div class="card">
+  <h1>ログイン</h1>
+  <small>ユーザー名だけでOK（ランキングに表示されます）</small>
+  <label>ユーザー名（1〜32文字）</label>
+  <input id="name" maxlength="32" placeholder="例: kizuna" autocomplete="nickname">
+  <div class="row">
+    <button id="btn">ログイン</button>
+  </div>
+  <div id="err" class="err"></div>
+</div>
+<script>
+const $=s=>document.querySelector(s);
+async function me(){
+  const r = await fetch('/api/me.php', {credentials:'include'});
+  if(r.ok){ location.href='/menu.html'; return true; }
+  return false;
+}
+me();
+
+$('#btn').onclick = async ()=>{
+  $('#err').textContent='';
+  const name = $('#name').value.trim();
+  if(!name){ $('#err').textContent='ユーザー名を入力してください'; return; }
+  const r = await fetch('/api/login.php', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({player_name:name}),
+    credentials:'include'
+  });
+  const js = await r.json().catch(()=>null);
+  if(!r.ok || !js || !js.ok){
+    $('#err').textContent = (js && (js.message||js.error)) ? (js.message||js.error) : ('login failed ('+r.status+')');
+    return;
+  }
+  location.href='/menu.html';
+};
+</script>

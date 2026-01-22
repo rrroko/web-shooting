@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>Web Shooting - メニュー</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <style>
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #0b1a33, #000814 70%);
+      color: #fff;
+    }
+
+    .wrap {
+      padding: 48px;
+      max-width: 1000px;
+    }
+
+    h1 {
+      margin-bottom: 8px;
+      font-size: 32px;
+    }
+
+    .desc {
+      opacity: 0.8;
+      margin-bottom: 24px;
+    }
+
+    /* ===== 機体 ===== */
+    .ships {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .ship {
+      width: 140px;
+      height: 140px;
+      border-radius: 14px;
+      background: linear-gradient(180deg, #111b33, #0a1224);
+      border: 2px solid transparent;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: 0.15s;
+    }
+
+    .ship.selected {
+      border-color: #4da3ff;
+      box-shadow: 0 0 0 2px rgba(77,163,255,0.25);
+    }
+
+    .ship img {
+      width: 64px;
+      height: 64px;
+      image-rendering: pixelated;
+      object-fit: contain;
+    }
+
+    .ship small {
+      margin-top: 6px;
+      opacity: 0.75;
+    }
+
+    /* ===== UI ===== */
+    .row {
+      margin-bottom: 20px;
+    }
+
+    select {
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+
+    .buttons {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    button {
+      padding: 10px 18px;
+      font-size: 15px;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      background: #1e3a8a;
+      color: #fff;
+      transition: 0.15s;
+    }
+
+    button.secondary {
+      background: #334155;
+    }
+
+    button:hover {
+      filter: brightness(1.15);
+    }
+  </style>
+</head>
+
+<body>
+<div id='topbar' style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid #334155;background:#0f172a;position:sticky;top:0;z-index:10">
+  <div>👤 <span id='who'>...</span></div>
+  <div style='display:flex;gap:8px;align-items:center'>
+    <a href="/forge.html" style="color:#e8efff;text-decoration:none;padding:6px 10px;border:1px solid #334155;border-radius:10px">工房</a>
+    <a href="/codex.html" style="color:#e8efff;text-decoration:none;padding:6px 10px;border:1px solid #334155;border-radius:10px">図鑑</a>
+    <a href='/ranking.html' style='color:#e8efff;text-decoration:none;padding:6px 10px;border:1px solid #334155;border-radius:10px'>ランキング</a>
+    <a href='/forge.html' style='color:#e8efff;text-decoration:none;padding:6px 10px;border:1px solid #334155;border-radius:10px'>工房</a>
+    <a href='/codex.html' style='color:#e8efff;text-decoration:none;padding:6px 10px;border:1px solid #334155;border-radius:10px'>図鑑</a>
+    <button id='logoutBtn' style='cursor:pointer;border:0;border-radius:10px;padding:6px 10px;background:#334155;color:#fff'>ログアウト</button>
+  </div>
+</div>
+
+  <div class="wrap">
+    <h1>Web Shooting</h1>
+    <div class="desc">機体を選択して出撃</div>
+
+    
+    <div class="ships" id="ships"></div>
+
+    
+    <h3 style="margin:20px 0 8px;">武器</h3>
+    <div class="ships" id="weapons"></div>
+
+    
+    <div class="row">
+      難易度：
+      <select id="difficulty">
+        <option value="easy">EASY</option>
+        <option value="normal" selected>NORMAL</option>
+        <option value="hard">HARD</option>
+      </select>
+    </div>
+
+    
+    <div class="buttons">
+  <button id="btn-stage1">STAGE 1</button>
+  <button id="btn-stage2">STAGE 2</button>
+  <button id="btn-stage3">STAGE 3</button>
+  <button id="btn-survival" class="secondary">SURVIVAL</button>
+  <button id="btn-forge" class="secondary">工房</button>
+  <button id="btn-codex" class="secondary">図鑑</button>
+  <button id="btn-ranking">ランキング</button>
+  </div>
+  </div>
+
+  
+  <script type="module">
+    /* ---------- 定義 ---------- */
+
+    // 機体ID（game.js の SHIPS と一致させる）
+    const SHIP_IDS = ['falcon', 'striker', 'titan'];
+
+    // 機体ID → スプライトキー
+    const SHIP_SPRITE = {
+      falcon:  'player.ship_1',
+      striker: 'player.ship_2',
+      titan:   'player.ship_3'
+    };
+
+    let selectedShip = 'striker';
+
+    const shipsEl = document.getElementById('ships');
+    const diffEl  = document.getElementById('difficulty');
+
+    // 武器ID（game.js の WEAPONS と一致）
+    const WEAPON_IDS = ['pulse', 'scatter', 'missile'];
+
+    let selectedWeapon = 'pulse';
+
+    const weaponsEl = document.getElementById('weapons');
+
+    /* ---------- manifest 読み込み ---------- */
+    const manifest = await (await fetch('/assets/manifest.json', { cache: 'no-store' })).json();
+
+    /* ---------- 機体カード生成 ---------- */
+    for (const id of SHIP_IDS) {
+      const spriteKey = SHIP_SPRITE[id];
+      const src = manifest[spriteKey];
+
+      const div = document.createElement('div');
+      div.className = 'ship' + (id === selectedShip ? ' selected' : '');
+      div.dataset.id = id;
+
+      div.innerHTML = `
+        <img src="${src || ''}">
+        <small>${id}</small>
+      `;
+
+      div.onclick = () => {
+        selectedShip = id;
+        document.querySelectorAll('.ship').forEach(e => e.classList.remove('selected'));
+        div.classList.add('selected');
+      };
+
+      shipsEl.appendChild(div);
+    }
+
+    for (const wid of WEAPON_IDS) {
+      const div = document.createElement('div');
+      div.className = 'ship' + (wid === selectedWeapon ? ' selected' : '');
+      div.dataset.id = wid;
+
+      const wKey = `weapon.${wid}`;
+      const src = manifest[wKey];
+
+      div.innerHTML = `
+        <img src="${src || ''}">
+        <small>${wid}</small>
+      `;
+
+      div.onclick = () => {
+        selectedWeapon = wid;
+        // ships と weapons が同じ class を使っているので、武器欄だけ選択解除
+        weaponsEl.querySelectorAll('.ship').forEach(e => e.classList.remove('selected'));
+        div.classList.add('selected');
+      };
+
+      weaponsEl.appendChild(div);
+    }
+
+    /* ---------- loadout 保存 ---------- */
+    function saveLoadout() {
+      const loadout = {
+        ship: selectedShip,
+        weapon: selectedWeapon,   // 次のステップで選択UI追加
+        weaponLv: 1
+      };
+      localStorage.setItem('loadout', JSON.stringify(loadout));
+    }
+
+    /* ---------- 遷移 ---------- */
+    const goStage = (n) => {
+  saveLoadout();
+  location.href = `/game.html?mode=story&stage=${n}&difficulty=${diffEl.value}`;
+};
+
+document.getElementById('btn-stage1').onclick = () => goStage(1);
+document.getElementById('btn-stage2').onclick = () => goStage(2);
+document.getElementById('btn-stage3').onclick = () => goStage(3);
+
+    document.getElementById('btn-survival').onclick = () => {
+      saveLoadout();
+      location.href = `/game.html?mode=survival&difficulty=${diffEl.value}`;
+    };
+
+    document.getElementById('btn-ranking').onclick = () => {
+      location.href = '/ranking.html';
+    };
+
+    document.getElementById('btn-forge').onclick = () => location.href = '/forge.html';
+    document.getElementById('btn-codex').onclick = () => location.href = '/codex.html';
+  </script>
+
+<script>
+async function requireLogin(){
+  const r = await fetch('/api/me.php', {credentials:'include'});
+  if(!r.ok){ location.href='/login.html'; return; }
+  const js = await r.json().catch(()=>null);
+  document.getElementById('who').textContent = (js && js.player && js.player.player_name) ? js.player.player_name : 'login';
+}
+requireLogin();
+document.getElementById('logoutBtn').onclick = async ()=>{
+  await fetch('/api/logout.php', {credentials:'include'});
+  location.href='/login.html';
+};
+</script>
+
+</body>
+</html>

@@ -1,0 +1,57 @@
+<!doctype html><meta charset="utf-8">
+<title>Web Shooting - Game</title>
+<style>
+:root{color-scheme:dark}
+body{margin:0;background:#0b0b0f;color:#e8efff;font:14px/1.5 system-ui}
+#wrap{display:flex;flex-direction:column;align-items:center;gap:8px;padding:12px}
+canvas{background:#000;image-rendering:pixelated;box-shadow:0 6px 18px rgba(0,0,0,.5);border-radius:10px}
+.row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.btn{background:#1e3a8a;color:#fff;border:0;border-radius:10px;padding:6px 10px;text-decoration:none}
+</style>
+<div id="wrap">
+  <div class="row"><div style="margin-right:auto;opacity:.85">👤 <span id="meName">...</span></div>
+    <a class="btn" href="/menu.html">← メニュー</a>
+    <button id="btnLogout" class="btn">ログアウト</button>
+  </div>
+  <canvas id="cv" width="800" height="600"></canvas>
+  <div class="row">
+    <div>HP: <span id="hp">—</span></div>
+    <div>Score: <span id="score">0</span></div>
+    <div>Time: <span id="time">0.0</span>s</div>
+  </div>
+  <div id="msg"></div>
+</div>
+
+<script>
+(async ()=>{
+  try{
+    const r = await fetch('/api/me.php', {credentials:'include'});
+    if(!r.ok){ location.href='/login.html'; }
+  }catch(e){ location.href='/login.html'; }
+})();
+</script>
+<script src="/js/game.js"></script>
+
+<script>
+(async ()=>{
+  // auth guard: if not logged in, go login
+  try{
+    const r = await fetch('/api/me.php', {credentials:'include'});
+    if(!r.ok){ location.href='/login.html'; return; }
+    const me = await r.json();
+    const nameEl = document.getElementById('meName');
+    if (nameEl) nameEl.textContent = me?.name ?? me?.player_name ?? 'player';
+    const btnLogout = document.getElementById('btnLogout');
+    if (btnLogout){
+      btnLogout.onclick = async ()=>{
+        try{ await fetch('/api/logout.php', {method:'POST', credentials:'include'}); }catch(e){}
+        location.href = '/login.html';
+      };
+    }
+  }catch(e){
+    location.href='/login.html';
+  }
+})();
+</script>
+
+

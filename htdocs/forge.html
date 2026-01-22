@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>工房</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  body{background:#0b1020;color:#fff;font-family:system-ui,sans-serif;padding:32px;}
+  h1{margin:0 0 8px;}
+  .sub{opacity:.8;margin-bottom:18px;}
+  .box{background:#111a33;border-radius:12px;padding:16px;margin:12px 0;border:1px solid rgba(255,255,255,.08)}
+  .row{display:flex;gap:12px;flex-wrap:wrap;align-items:center;}
+  button{padding:8px 14px;border-radius:999px;border:none;cursor:pointer;background:#1e40af;color:#fff;}
+  button.secondary{background:#334155;}
+  button:disabled{opacity:.4;cursor:not-allowed;}
+  .mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;}
+</style>
+</head>
+<body>
+  <h1>工房</h1>
+  <div class="sub">素材を消費して武器Lvを強化します</div>
+
+  <div id="status" class="box mono"></div>
+  <div id="weapon-upgrade"></div>
+
+  <div class="row" style="margin-top:18px;">
+    <button class="secondary" onclick="location.href='/menu.html'">← メニューに戻る</button>
+    <button class="secondary" onclick="location.href='/codex.html'">図鑑</button>
+  </div>
+
+  <script src="/js/forge.js"></script>
+</body>
+</html>

@@ -1,0 +1,80 @@
+{
+  "enemy.gargoyle_purple": {
+    "src": "assets/sprites/enemies/gargoyle_purple.png",
+    "frameSize": "auto",
+    "dirs": 1,
+    "anims": {
+      "move": [
+        0
+      ]
+    },
+    "pivot": "center",
+    "rotate": true,
+    "renderScale": 0.1
+  },
+  "enemy.gargoyle_stone": {
+    "src": "assets/sprites/enemies/gargoyle_stone.png",
+    "frameSize": "auto",
+    "dirs": 1,
+    "anims": {
+      "move": [
+        0
+      ]
+    },
+    "pivot": "center",
+    "rotate": true,
+    "renderScale": 0.1
+  },
+  "enemy.ghost_black": {
+    "src": "assets/sprites/enemies/ghost_black.png",
+    "frameSize": "auto",
+    "dirs": 1,
+    "anims": {
+      "move": [
+        0
+      ]
+    },
+    "pivot": "center",
+    "rotate": true,
+    "renderScale": 0.1
+  },
+  "enemy.ghost_white": {
+    "src": "assets/sprites/enemies/ghost_white.png",
+    "frameSize": "auto",
+    "dirs": 1,
+    "anims": {
+      "move": [
+        0
+      ]
+    },
+    "pivot": "center",
+    "rotate": true,
+    "renderScale": 0.1
+  },
+  "boss.mimic": {
+    "src": "assets/sprites/enemies/mimic_red.png",
+    "frameSize": "auto",
+    "dirs": 1,
+    "anims": {
+      "move": [
+        0
+      ]
+    },
+    "pivot": "center",
+    "rotate": true,
+    "renderScale": 0.1
+  },
+  "enemy.slime_big_purple": {
+    "src": "assets/sprites/enemies/slime_big_purple.png",
+    "frameSize": "auto",
+    "dirs": 1,
+    "anims": {
+      "move": [
+        0
+      ]
+    },
+    "pivot": "center",
+    "rotate": true,
+    "renderScale": 0.1
+  }
+}

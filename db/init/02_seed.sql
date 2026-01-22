@@ -1,0 +1,2 @@
+-- db/init/02_seed.sql
+-- (optional) leave empty
