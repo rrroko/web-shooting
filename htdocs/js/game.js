@@ -385,7 +385,7 @@ class PlayerBullet extends Bullet {
     this.damage = opt.damage ?? 1;
 
     this.kind = opt.kind ?? 'plain';        
-    this.life = opt.life ?? null;           
+    this.life = (opt.life ?? ((this.kind === 'homing') ? 3.2 : null));           
     this._t = 0;
 
     this.turn = opt.turn ?? 4.0;            
