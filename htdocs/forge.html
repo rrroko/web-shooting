@@ -2,32 +2,89 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>工房</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>工房</title>
 <style>
-  body{background:#0b1020;color:#fff;font-family:system-ui,sans-serif;padding:32px;}
-  h1{margin:0 0 8px;}
-  .sub{opacity:.8;margin-bottom:18px;}
-  .box{background:#111a33;border-radius:12px;padding:16px;margin:12px 0;border:1px solid rgba(255,255,255,.08)}
-  .row{display:flex;gap:12px;flex-wrap:wrap;align-items:center;}
-  button{padding:8px 14px;border-radius:999px;border:none;cursor:pointer;background:#1e40af;color:#fff;}
-  button.secondary{background:#334155;}
-  button:disabled{opacity:.4;cursor:not-allowed;}
-  .mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;}
+:root{color-scheme:dark;--bg0:#070a12;--bg1:#0b1020;--card:#0f1730;--line:rgba(255,255,255,.08);--text:#e8efff;--muted:rgba(232,239,255,.68);--accent:#60a5fa;--accent2:#22c55e;--danger:#fb7185;--shadow:0 18px 50px rgba(0,0,0,.45);--r:18px}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:radial-gradient(1200px 700px at 20% -10%, rgba(96,165,250,.22), transparent 55%),radial-gradient(900px 600px at 95% 15%, rgba(34,197,94,.16), transparent 60%),linear-gradient(180deg,var(--bg0),var(--bg1));color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:980px;margin:0 auto;padding:28px 18px 40px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:18px}
+.brand{display:flex;align-items:center;gap:12px}
+.badge{width:44px;height:44px;border-radius:14px;background:linear-gradient(135deg,rgba(96,165,250,.95),rgba(34,197,94,.85));box-shadow:var(--shadow)}
+h1{margin:0;font-size:24px;letter-spacing:.5px}
+.sub{margin:4px 0 0;color:var(--muted);font-size:13px}
+.actions{display:flex;gap:10px;flex-wrap:wrap}
+.btn{border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--text);padding:10px 14px;border-radius:999px;cursor:pointer;transition:transform .12s ease, background .12s ease, border-color .12s ease}
+.btn:hover{transform:translateY(-1px);background:rgba(255,255,255,.09);border-color:rgba(255,255,255,.16)}
+.btn.primary{border-color:rgba(96,165,250,.35);background:rgba(96,165,250,.16)}
+.grid{display:grid;grid-template-columns:1fr;gap:14px}
+@media (min-width:860px){.grid{grid-template-columns:360px 1fr}}
+.card{background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.02));border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden}
+.card .hd{padding:16px 16px 10px;border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.card .hd .t{font-weight:700}
+.card .hd .s{color:var(--muted);font-size:12px;margin-top:3px}
+.card .bd{padding:14px 16px}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;font-size:12.5px;color:rgba(232,239,255,.85);white-space:pre-wrap}
+.kpi{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.kpi .k{padding:12px;border-radius:14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06)}
+.kpi .k .l{color:var(--muted);font-size:11px}
+.kpi .k .v{font-size:18px;font-weight:800;margin-top:2px}
+.pill{display:inline-flex;align-items:center;gap:8px;padding:6px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);color:rgba(232,239,255,.9);font-size:12px}
+.hr{height:1px;background:rgba(255,255,255,.06);margin:12px 0}
+.note{color:var(--muted);font-size:12px;line-height:1.6}
+.box{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.10);border-radius:14px;padding:12px;margin:10px 0}
+#weapon-upgrade button{width:100%;padding:12px 14px;border-radius:999px;border:1px solid rgba(96,165,250,.35);background:rgba(96,165,250,.16);color:var(--text);cursor:pointer;transition:transform .12s ease, background .12s ease}
+#weapon-upgrade button:hover{transform:translateY(-1px);background:rgba(96,165,250,.22)}
+#weapon-upgrade button:disabled{opacity:.45;cursor:not-allowed;transform:none}
 </style>
 </head>
 <body>
-  <h1>工房</h1>
-  <div class="sub">素材を消費して武器Lvを強化します</div>
-
-  <div id="status" class="box mono"></div>
-  <div id="weapon-upgrade"></div>
-
-  <div class="row" style="margin-top:18px;">
-    <button class="secondary" onclick="location.href='/menu.html'">← メニューに戻る</button>
-    <button class="secondary" onclick="location.href='/codex.html'">図鑑</button>
+<div class="wrap">
+  <div class="top">
+    <div class="brand">
+      <div class="badge" aria-hidden="true"></div>
+      <div>
+        <h1>工房</h1>
+        <div class="sub">素材を消費して武器Lvを強化します</div>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="btn" onclick="location.href='/menu.html'">メニュー</button>
+      <button class="btn primary" onclick="location.href='/codex.html'">図鑑</button>
+    </div>
   </div>
 
-  <script src="/js/forge.js"></script>
+  <div class="grid">
+    <div class="card">
+      <div class="hd">
+        <div>
+          <div class="t">現在の状態</div>
+          <div class="s">所持素材と装備状況</div>
+        </div>
+        <span class="pill">Forge</span>
+      </div>
+      <div class="bd">
+        <div id="status" class="mono"></div>
+        <div class="hr"></div>
+        <div class="note">強化はローカル保存です。リセットしたい場合はブラウザのストレージを削除してください。</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="hd">
+        <div>
+          <div class="t">強化メニュー</div>
+          <div class="s">必要素材を満たすと強化できます</div>
+        </div>
+      </div>
+      <div class="bd">
+        <div id="weapon-upgrade"></div>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="/js/forge.js"></script>
 </body>
 </html>
