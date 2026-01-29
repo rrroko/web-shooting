@@ -1,10 +1,6 @@
 # Ignore environment and local files
 .env
-.env.*
 .DS_Store
 *.log
-node_modules/
-dist/
-vendor/
-.idea/
-.vscode/
+
+
